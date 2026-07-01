@@ -6,7 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build": "tsc",
+    "commit": "pnpm cz",
+    "eslint:check": "eslint .",
+    "prettier:check": "prettier --check ."
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
   },
   "keywords": [],
   "author": "",
@@ -20,6 +29,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@commitlint/types": "^21.2.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.0.1",
     "eslint": "^10.6.0",
@@ -31,5 +41,11 @@
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1"
+  },
+  "dependencies": {
+    "@commitlint/cli": "^21.2.0",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@commitlint/cz-commitlint": "^21.2.0",
+    "@commitlint/prompt-cli": "^21.2.0"
   }
 }
