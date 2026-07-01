@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
@@ -27,7 +28,6 @@
       "onFail": "download"
     }
   },
-  "type": "module",
   "devDependencies": {
     "@commitlint/types": "^21.2.0",
     "@eslint/js": "^10.0.1",
@@ -46,6 +46,7 @@
     "@commitlint/cli": "^21.2.0",
     "@commitlint/config-conventional": "^21.2.0",
     "@commitlint/cz-commitlint": "^21.2.0",
-    "@commitlint/prompt-cli": "^21.2.0"
+    "@commitlint/prompt-cli": "^21.2.0",
+    "fastify": "^5.9.0"
   }
 }
