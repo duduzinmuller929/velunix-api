@@ -24,7 +24,7 @@ export const buildApp = async () => {
                 description: 'Documentação automática da API',
                 version: '1.0.0',
             },
-            servers: [{ url: 'http://localhost:8000' }],
+            servers: [{ url: `http://localhost:${process.env.PORT}` }],
         },
         transform: jsonSchemaTransform,
         hideUntagged: false,

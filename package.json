@@ -8,6 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
     "prepare": "husky",
+    "postinstall": "prisma generate",
     "build": "tsc",
     "commit": "pnpm cz",
     "eslint:check": "eslint .",
@@ -59,9 +60,13 @@
     "@fastify/swagger-ui": "^6.0.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "chalk": "^5.6.2",
+    "dotenv": "^17.4.2",
     "fastify": "^5.9.0",
     "fastify-plugin": "^6.0.0",
     "fastify-type-provider-zod": "^7.0.0",
+    "figlet": "^1.11.0",
+    "ora": "^9.4.1",
     "pg": "^8.22.0",
     "zod": "^4.4.3"
   }

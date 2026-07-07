@@ -4,9 +4,11 @@ WORKDIR /app
 
 RUN npm install -g pnpm tsx
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml  ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./
 
-RUN  pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
