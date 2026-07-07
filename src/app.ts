@@ -20,7 +20,7 @@ export const buildApp = async () => {
     await app.register(swagger, {
         openapi: {
             info: {
-                title: 'ScrollFeed API',
+                title: 'Velunix API',
                 description: 'Documentação automática da API',
                 version: '1.0.0',
             },
