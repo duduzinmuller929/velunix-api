@@ -1,61 +1,70 @@
-import Fastify, { type FastifyReply, type FastifyRequest } from 'fastify';
-import swagger from '@fastify/swagger';
-import swaggerUI from '@fastify/swagger-ui';
 import fastifyCookie from '@fastify/cookie';
 import fastifyCors from '@fastify/cors';
-import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from 'fastify-type-provider-zod';
-import dbPlugin from './plugins/db.js';
+import fastifyMultipart from '@fastify/multipart';
+import swagger from '@fastify/swagger';
+import swaggerUI from '@fastify/swagger-ui';
+import Fastify from 'fastify';
+import {
+    jsonSchemaTransform,
+    serializerCompiler,
+    validatorCompiler,
+    type ZodTypeProvider,
+} from 'fastify-type-provider-zod';
+import dbPlugin from './plugins/db';
 
-const app = Fastify({
-    logger: true,
-}).withTypeProvider<ZodTypeProvider>();
+export const buildApp = async () => {
+    const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+    app.setValidatorCompiler(validatorCompiler);
+    app.setSerializerCompiler(serializerCompiler);
 
-app.setValidatorCompiler(validatorCompiler);
-app.setSerializerCompiler(serializerCompiler);
-
-await app.register(fastifyCors, {
-    origin: true,
-});
-
-await app.register(fastifyCookie, {
-    secret: 'velunix-secret-key',
-});
-
-await app.register(dbPlugin);
-
-await app.register(swagger, {
-    openapi: {
-        info: {
-            title: 'Velunix API',
-            description: 'Documentação da API',
-            version: '1.0.0',
+    await app.register(swagger, {
+        openapi: {
+            info: {
+                title: 'ScrollFeed API',
+                description: 'Documentação automática da API',
+                version: '1.0.0',
+            },
+            servers: [{ url: 'http://localhost:8000' }],
         },
-    },
-});
+        transform: jsonSchemaTransform,
+        hideUntagged: false,
+    });
 
-await app.register(swaggerUI, {
-    routePrefix: '/docs',
-    uiConfig: {
-        docExpansion: 'list',
-        deepLinking: false,
-    },
-});
+    await app.register(dbPlugin);
+    await app.register(fastifyMultipart, {
+        limits: {
+            fileSize: 5 * 1024 * 1024,
+        },
+    });
+    app.register(fastifyCookie, {
+        secret: process.env.JWT_SECRET!,
+    });
 
-app.get('/', async function (request: FastifyRequest, reply: FastifyReply) {
-    return reply.send({ hello: 'world' });
-});
+    await app.register(swaggerUI, {
+        routePrefix: '/docs',
+        uiConfig: {
+            docExpansion: 'list',
+            deepLinking: false,
+        },
+    });
 
-async function start() {
-    try {
-        if (!app.addresses().length) {
-            await app.listen({ port: 8000 });
-        }
-    } catch (err) {
-        app.log.error(err);
-        process.exit(1);
-    }
-}
+    await app.register(fastifyCors, {
+        origin: true,
+        credentials: true,
+    });
 
-start();
+    app.get(
+        '/health',
+        {
+            schema: {
+                summary: 'Health check da API',
+                tags: ['Rota de health check'],
+            },
+        },
+        async () => {
+            return { message: 'Hello world API FUNCIONANDO' };
+        },
+    );
 
-export default app;
+    return app;
+};
