@@ -19,6 +19,7 @@ model User {
   email            String   @unique
   passwordHash     String   @map("password_hash")
   phone            String?
+  cpfCnpj          String?
   avatar           String?
   roleId           String   @map("role_id")
   emailVerified    Boolean  @default(false) @map("email_verified")
