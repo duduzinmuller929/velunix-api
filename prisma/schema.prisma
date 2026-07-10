@@ -12,21 +12,222 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  BLOCKED
+  DELETED
+  SUSPENDED
+}
+
+enum AffiliateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+  DELETED
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  MANAGER
+  MODERATOR
+  SUPPORT
+  CEO
+}
+
+enum Provider {
+  LOCAL
+  GOOGLE
+  GITHUB
+  DISCORD
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELED
+}
+
+enum PlanName {
+  FREE
+  STARTER
+  PRO
+  BUSINESS
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+  SUSPENDED
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+enum Language {
+  EN
+  PT
+  ES
+  FR
+  DE
+  IT
+  JA
+  KO
+  ZH
+  AR
+  HI
+  BN
+}
+
+enum Timezone {
+  UTC
+  GMT
+  CET
+  EST
+}
+
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum AiMode {
+  GENERATIVE
+  STREAMING
+}
+
+enum IntegrationProvider {
+  GOOGLE
+  GITHUB
+  DISCORD
+  NOTION
+  SLACK
+  GMAIL
+  WORD
+  EXCEL
+  SPOTIFY
+  FIGMA
+  CANVA
+  TELEGRAM
+  GAMMA
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum IntegrationStatus {
+  ACTIVE
+  INACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum AuditLogAction {
+  LOGIN
+  LOGOUT
+  REGISTER
+  RESET_PASSWORD
+}
+
+enum AuditLogStatus {
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum CouponStatus {
+  ACTIVE
+  EXPIRED
+  DISABLED
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum NotificationType {
+  EMAIL
+  IN_APP
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  READ
+  UNREAD
+}
+
+enum UploadType {
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+  ARCHIVE
+}
+
+enum UploadStatus {
+  UPLOADING
+  COMPLETED
+  FAILED
+  DELETED
+  CANCELLED
+}
+
+enum PaymentGateway {
+  ASAAS
+  STRIPE
+  MERCADO_PAGO
+  PAYPAL
+}
+
 model User {
-  id               String   @id @default(uuid())
+  id               String     @id @default(uuid())
   name             String
-  username         String   @unique
-  email            String   @unique
-  passwordHash     String   @map("password_hash")
+  username         String     @unique
+  email            String     @unique
+  passwordHash     String     @map("password_hash")
   phone            String?
-  cpfCnpj          String?
   avatar           String?
-  roleId           String   @map("role_id")
-  emailVerified    Boolean  @default(false) @map("email_verified")
-  twoFactorEnabled Boolean  @default(false) @map("two_factor_enabled")
-  status           String
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  provider         Provider   @default(LOCAL) @map("provider")
+  roleId           String     @map("role_id")
+  emailVerified    Boolean    @default(false) @map("email_verified")
+  twoFactorEnabled Boolean    @default(false) @map("two_factor_enabled")
+  status           UserStatus @default(PENDING)
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
 
   role                Role                 @relation(fields: [roleId], references: [id])
   profile             Profile?
@@ -65,14 +266,14 @@ model User {
 }
 
 model Profile {
-  id       String  @id @default(uuid())
-  userId   String  @unique @map("user_id")
+  id       String   @id @default(uuid())
+  userId   String   @unique @map("user_id")
   bio      String?
-  language String  @default("en")
-  timezone String
-  theme    String  @default("light")
+  language Language @default(EN)
+  timezone Timezone
+  theme    Theme    @default(SYSTEM)
   voice    String?
-  aiName   String? @map("ai_name")
+  aiName   String?  @map("ai_name")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -80,33 +281,25 @@ model Profile {
 }
 
 model Affiliate {
-  id String @id @default(cuid())
-
-  userId     String  @unique
-  couponId   String
-  approvedBy String?
-
-  commissionPercentage Decimal @db.Decimal(5, 2)
-
-  freePlan Boolean @default(false)
-
-  status String
-
-  approvedAt DateTime?
-
-  createdAt DateTime @default(now())
-
-  user User @relation("AffiliateUser", fields: [userId], references: [id], onDelete: Cascade)
-
-  coupon         Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
-  approvedByUser User?  @relation("AffiliateApprovedBy", fields: [approvedBy], references: [id], onDelete: SetNull)
+  id                   String          @id @default(cuid())
+  userId               String          @unique
+  couponId             String
+  approvedBy           String?
+  commissionPercentage Decimal         @db.Decimal(5, 2)
+  freePlan             PlanName        @default(PRO)
+  status               AffiliateStatus @default(PENDING)
+  approvedAt           DateTime?
+  createdAt            DateTime        @default(now())
+  user                 User            @relation("AffiliateUser", fields: [userId], references: [id], onDelete: Cascade)
+  coupon               Coupon          @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  approvedByUser       User?           @relation("AffiliateApprovedBy", fields: [approvedBy], references: [id], onDelete: SetNull)
 
   @@map("affiliates")
 }
 
 model Role {
   id          String       @id @default(uuid())
-  name        String       @unique
+  name        UserRole     @unique
   users       User[]
   permissions Permission[]
 
@@ -136,7 +329,7 @@ model UserSession {
   country          String?
   state            String?
   city             String?
-  timezone         String?
+  timezone         Timezone
   userAgent        String?  @map("user_agent")
   isCurrentSession Boolean  @default(false) @map("is_current_session")
   isActive         Boolean  @default(true) @map("is_active")
@@ -197,14 +390,14 @@ model RefreshToken {
 }
 
 model UserSettings {
-  id            String  @id @default(uuid())
-  userId        String  @unique @map("user_id")
-  theme         String  @default("light")
-  language      String  @default("en")
-  timezone      String
-  notifications Boolean @default(true)
+  id            String   @id @default(uuid())
+  userId        String   @unique @map("user_id")
+  theme         Theme    @default(SYSTEM)
+  language      Language @default(EN)
+  timezone      Timezone
+  notifications Boolean  @default(true)
   voice         String?
-  aiMode        String  @map("ai_mode")
+  aiMode        AiMode   @default(GENERATIVE)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -213,7 +406,7 @@ model UserSettings {
 
 model Plan {
   id            String   @id @default(uuid())
-  name          String
+  name          PlanName @default(FREE)
   price         Decimal  @db.Decimal(10, 2)
   dailyRequests Int      @map("daily_requests")
   storageLimit  Int      @map("storage_limit")
@@ -228,13 +421,13 @@ model Plan {
 }
 
 model Subscription {
-  id          String   @id @default(uuid())
-  userId      String   @map("user_id")
-  planId      String   @map("plan_id")
-  status      String
-  startedAt   DateTime @default(now()) @map("started_at")
-  expiresAt   DateTime @map("expires_at")
-  renewalDate DateTime @map("renewal_date")
+  id          String             @id @default(uuid())
+  userId      String             @map("user_id")
+  planId      String             @map("plan_id")
+  status      SubscriptionStatus @default(ACTIVE)
+  startedAt   DateTime           @default(now()) @map("started_at")
+  expiresAt   DateTime           @map("expires_at")
+  renewalDate DateTime           @map("renewal_date")
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan     Plan      @relation(fields: [planId], references: [id])
@@ -244,15 +437,15 @@ model Subscription {
 }
 
 model Payment {
-  id             String    @id @default(uuid())
-  userId         String    @map("user_id")
-  subscriptionId String    @map("subscription_id")
-  gateway        String
-  amount         Decimal   @db.Decimal(10, 2)
-  currency       String    @default("USD")
-  status         String
-  paidAt         DateTime? @map("paid_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
+  id             String         @id @default(uuid())
+  userId         String         @map("user_id")
+  subscriptionId String         @map("subscription_id")
+  gateway        PaymentGateway @default(ASAAS)
+  amount         Decimal        @db.Decimal(10, 2)
+  currency       String         @default("USD")
+  status         PaymentStatus  @default(PENDING)
+  paidAt         DateTime?      @map("paid_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
 
   user         User               @relation(fields: [userId], references: [id])
   subscription Subscription       @relation(fields: [subscriptionId], references: [id])
@@ -277,16 +470,17 @@ model Invoice {
 }
 
 model Coupon {
-  id        String    @id @default(uuid())
-  code      String    @unique
-  type      String
-  value     Decimal   @db.Decimal(10, 2)
-  maxUses   Int       @map("max_uses")
-  usedCount Int       @default(0) @map("used_count")
-  planId    String?   @map("plan_id")
-  expiresAt DateTime? @map("expires_at")
-  isActive  Boolean   @default(true) @map("is_active")
-  createdAt DateTime  @default(now()) @map("created_at")
+  id        String       @id @default(uuid())
+  code      String       @unique
+  type      CouponType   @default(PERCENTAGE)
+  value     Decimal      @db.Decimal(10, 2)
+  maxUses   Int          @map("max_uses")
+  usedCount Int          @default(0) @map("used_count")
+  status    CouponStatus @default(ACTIVE)
+  planId    String?      @map("plan_id")
+  expiresAt DateTime?    @map("expires_at")
+  isActive  Boolean      @default(true) @map("is_active")
+  createdAt DateTime     @default(now()) @map("created_at")
 
   plan        Plan?              @relation(fields: [planId], references: [id])
   redemptions CouponRedemption[]
@@ -386,20 +580,16 @@ model AiContext {
   @@map("ai_context")
 }
 
-// ==========================================
-// PRODUCTIVITY (TASKS & CALENDAR)
-// ==========================================
-
 model Task {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  taskListId  String?   @map("task_list_id")
+  id          String       @id @default(uuid())
+  userId      String       @map("user_id")
+  taskListId  String?      @map("task_list_id")
   title       String
-  description String?   @db.Text
-  priority    String
-  status      String
-  dueDate     DateTime? @map("due_date")
-  completedAt DateTime? @map("completed_at")
+  description String?      @db.Text
+  priority    TaskPriority @default(MEDIUM)
+  status      TaskStatus   @default(PENDING)
+  dueDate     DateTime?    @map("due_date")
+  completedAt DateTime?    @map("completed_at")
 
   user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   taskList TaskList?   @relation(fields: [taskListId], references: [id], onDelete: SetNull)
@@ -430,14 +620,15 @@ model TaskLabel {
 }
 
 model CalendarEvent {
-  id          String   @id @default(uuid())
-  userId      String   @map("user_id")
+  id          String     @id @default(uuid())
+  userId      String     @map("user_id")
   title       String
-  description String?  @db.Text
+  description String?    @db.Text
   start       DateTime
   end         DateTime
   location    String?
-  reminder    Boolean  @default(false)
+  reminder    Boolean    @default(false)
+  status      TaskStatus @default(PENDING)
 
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   reminders Reminder[]
@@ -483,9 +674,9 @@ model AutomationLog {
 }
 
 model Integration {
-  id       String @id @default(uuid())
-  userId   String @map("user_id")
-  provider String
+  id       String              @id @default(uuid())
+  userId   String              @map("user_id")
+  provider IntegrationProvider
   status   String
 
   user  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -495,11 +686,12 @@ model Integration {
 }
 
 model IntegrationToken {
-  id            String    @id @default(uuid())
-  integrationId String    @unique @map("integration_id")
-  accessToken   String    @map("access_token") @db.Text
-  refreshToken  String?   @map("refresh_token") @db.Text
-  expiresAt     DateTime? @map("expires_at")
+  id            String            @id @default(uuid())
+  integrationId String            @unique @map("integration_id")
+  accessToken   String            @map("access_token") @db.Text
+  refreshToken  String?           @map("refresh_token") @db.Text
+  expiresAt     DateTime?         @map("expires_at")
+  status        IntegrationStatus @default(ACTIVE)
 
   integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
 
@@ -507,14 +699,15 @@ model IntegrationToken {
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
+  id        String             @id @default(uuid())
+  userId    String             @map("user_id")
   title     String
-  message   String   @db.Text
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   String             @db.Text
+  read      Boolean            @default(false)
+  createdAt DateTime           @default(now()) @map("created_at")
+  type      NotificationType
+  status    NotificationStatus @default(PENDING)
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
@@ -544,15 +737,17 @@ model ApiKey {
 }
 
 model Upload {
-  id       String @id @default(uuid())
-  userId   String @map("user_id")
-  filename String
-  url      String
-  size     Int
-  mimeType String @map("mime_type")
-
-  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  attachment MessageAttachment[]
+  id               String              @id @default(uuid())
+  userId           String              @map("user_id")
+  filename         String
+  url              String
+  size             Int
+  mimeType         String              @map("mime_type")
+  type             UploadType
+  status           UploadStatus        @default(UPLOADING)
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachment       MessageAttachment[]
+  emailAttachments EmailAttachment[]
 
   @@map("uploads")
 }
@@ -569,10 +764,10 @@ model Organization {
 }
 
 model OrganizationMember {
-  id             String @id @default(uuid())
-  organizationId String @map("organization_id")
-  userId         String @map("user_id")
-  role           String
+  id             String           @id @default(uuid())
+  organizationId String           @map("organization_id")
+  userId         String           @map("user_id")
+  role           OrganizationRole
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -581,12 +776,13 @@ model OrganizationMember {
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  action    String
+  id        String         @id @default(uuid())
+  userId    String         @map("user_id")
+  action    AuditLogAction
   ip        String?
-  userAgent String?  @map("user_agent")
-  createdAt DateTime @default(now()) @map("created_at")
+  userAgent String?        @map("user_agent")
+  status    AuditLogStatus @default(SUCCESS)
+  createdAt DateTime       @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -594,16 +790,35 @@ model AuditLog {
 }
 
 model Email {
-  id       String    @id @default(uuid())
-  userId   String    @map("user_id")
-  subject  String
-  status   String
-  provider String
-  sentAt   DateTime? @map("sent_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String            @id @default(uuid())
+  userId      String            @map("user_id")
+  from        String
+  to          String
+  cc          String?
+  bcc         String?
+  subject     String
+  html        String            @db.Text
+  design      Json
+  providerId  String?
+  status      EmailStatus       @default(PENDING)
+  scheduledAt DateTime?         @map("scheduled_at")
+  sentAt      DateTime?         @map("sent_at")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachments EmailAttachment[]
 
   @@map("emails")
+}
+
+model EmailAttachment {
+  id       String @id @default(uuid())
+  emailId  String @map("email_id")
+  uploadId String @map("upload_id")
+  email    Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  upload   Upload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+
+  @@map("email_attachments")
 }
 
 model SupportTicket {
