@@ -9,6 +9,7 @@
     "dev": "tsx watch src/server.ts",
     "prepare": "husky",
     "postinstall": "prisma generate",
+    "db:seed": "prisma db seed",
     "build": "tsc",
     "commit": "pnpm cz",
     "eslint:check": "eslint .",
