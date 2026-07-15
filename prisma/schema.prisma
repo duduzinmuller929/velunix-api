@@ -380,9 +380,11 @@ model Warning {
 
 model RefreshToken {
   id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  token     String   @unique
+  userId    String   @unique @map("user_id")
+  tokenHash String   @map("token_hash")
   expiresAt DateTime @map("expires_at")
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -405,18 +407,27 @@ model UserSettings {
 }
 
 model Plan {
-  id            String   @id @default(uuid())
-  name          PlanName @default(FREE)
-  price         Decimal  @db.Decimal(10, 2)
-  dailyRequests Int      @map("daily_requests")
-  storageLimit  Int      @map("storage_limit")
-  voiceEnabled  Boolean  @default(false) @map("voice_enabled")
-  createdAt     DateTime @default(now()) @map("created_at")
-
+  id String @id @default(uuid())
+  name PlanName @default(FREE)
+  price Decimal @db.Decimal(10,2)
+  dailyRequests Int @map("daily_requests")
+  storageLimit Int @map("storage_limit")
+  maxConversations Int? @map("max_conversations")
+  maxAssistants Int? @map("max_assistants")
+  maxUploads Int? @map("max_uploads")
+  maxImages Int? @map("max_images")
+  maxAudioMinutes Int? @map("max_audio_minutes")
+  prioritySupport Boolean @default(false) @map("priority_support")
+  teamMembers Int? @map("team_members")
+  apiAccess Boolean @default(false) @map("api_access")
+  customBranding Boolean @default(false) @map("custom_branding")
+  voiceEnabled Boolean @default(false) @map("voice_enabled")
+  maxTokensPerDay Int? @map("max_tokens_per_day")
+  maxStoragePerFile Int @map("max_storage_per_file")
+  createdAt DateTime @default(now()) @map("created_at")
   subscriptions Subscription[]
-  coupons       Coupon[]
-  accessCodes   AccessCode[]
-
+  coupons Coupon[]
+  accessCodes AccessCode[]
   @@map("plans")
 }
 
