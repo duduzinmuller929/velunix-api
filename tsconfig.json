@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
+    "outDir": "./dist",
     "target": "esnext",
     "moduleResolution": "bundler",
     "module": "esnext",
@@ -23,12 +23,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "include": [
-    "src",
-    "prisma/db.ts",
-    "prisma/generated/generated",
-    "prisma/generated/generated",
-    "prisma/generated/generated"
-  ],
-  "exclude": ["node_modules", "dist", "prisma/generated", "prisma/generated/generated/prisma"]
+  "include": ["src", "prisma/db.ts"],
+  "exclude": ["node_modules", "dist", "prisma/generated"]
 }

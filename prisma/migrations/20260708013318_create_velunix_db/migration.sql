@@ -6,6 +6,7 @@ CREATE TABLE "users" (
     "email" TEXT NOT NULL,
     "password_hash" TEXT NOT NULL,
     "phone" TEXT,
+    "cpfCnpj" TEXT,
     "avatar" TEXT,
     "role_id" TEXT NOT NULL,
     "email_verified" BOOLEAN NOT NULL DEFAULT false,
