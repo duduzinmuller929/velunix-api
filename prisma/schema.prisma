@@ -232,6 +232,7 @@ model User {
 
   role                Role                 @relation(fields: [roleId], references: [id])
   profile             Profile?
+  resetPassword       PasswordResetToken?
   userSettings        UserSettings?
   affiliate           Affiliate?           @relation("AffiliateUser")
   approvedAffiliates  Affiliate[]          @relation("AffiliateApprovedBy")
@@ -264,6 +265,19 @@ model User {
   supportTickets      SupportTicket[]
 
   @@map("users")
+}
+
+model PasswordResetToken {
+  id         String   @id @default(uuid())
+  userId     String   @unique @map("user_id")
+  tokenHash  String   @unique @map("token_hash")
+  expiresAt  DateTime @map("expires_at")
+  usedAt     DateTime? @map("used_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
 }
 
 model Profile {
