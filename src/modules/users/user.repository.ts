@@ -1,9 +1,10 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { prisma } from '../../plugins/prisma';
-import type { CreateUserData, RefreshTokenType } from './user.types';
 import crypto from 'crypto';
-import { UserNotFoundError } from './user.errors';
+
 import type { Prisma } from '../../../prisma/generated/client';
+import { prisma } from '../../plugins/prisma';
+import { UserNotFoundError } from './user.errors';
+import type { CreateUserData, RefreshTokenType } from './user.types';
 
 const FREE_SUBSCRIPTION_EXPIRES_AT = new Date('2099-12-31T23:59:59.000Z');
 
@@ -177,6 +178,57 @@ export async function isRefreshTokenValid(token: string) {
     });
 
     return result[0] ?? null;
+}
+
+export async function getPasswordResetToken(token: string) {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    return prisma.passwordResetToken.findFirst({
+        where: {
+            tokenHash,
+            usedAt: null,
+            expiresAt: {
+                gt: new Date(),
+            },
+        },
+        include: {
+            user: true,
+        },
+    });
+}
+
+export async function usePasswordResetToken(token: string) {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    return prisma.passwordResetToken.update({
+        where: {
+            tokenHash,
+        },
+        data: {
+            usedAt: new Date(),
+        },
+    });
+}
+
+export async function updateUserPassword(userId: string, passwordHash: string) {
+    return prisma.user.update({
+        where: {
+            id: userId,
+        },
+        data: {
+            passwordHash,
+        },
+    });
+}
+
+export async function deleteExpiredPasswordResetTokens() {
+    return prisma.passwordResetToken.deleteMany({
+        where: {
+            expiresAt: {
+                lt: new Date(),
+            },
+        },
+    });
 }
 
 export async function markUserAsVerified(userId: string) {

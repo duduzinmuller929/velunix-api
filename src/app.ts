@@ -10,6 +10,7 @@ import {
     validatorCompiler,
     type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
+
 import dbPlugin from './plugins/db';
 
 export const buildApp = async () => {
