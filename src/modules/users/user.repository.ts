@@ -2,6 +2,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import crypto from 'crypto';
 
 import type { Prisma } from '../../../prisma/generated/client';
+import { UserRole } from '../../../prisma/generated/enums';
 import { prisma } from '../../plugins/prisma';
 import { UserNotFoundError } from './user.errors';
 import type { CreateUserData, RefreshTokenType } from './user.types';
@@ -18,8 +19,10 @@ export async function createUserRepository(createUserData: CreateUserData, freeP
                 avatar: createUserData.avatar ?? null,
                 phone: createUserData.phone ?? null,
                 passwordHash: createUserData.passwordHash,
+                role: createUserData.roleId
+                    ? { connect: { id: createUserData.roleId } }
+                    : { connect: { name: UserRole.USER } },
                 provider: 'LOCAL',
-                roleId: createUserData.roleId,
             },
         });
 
@@ -75,7 +78,9 @@ export async function createUserAuthProvider(createUserAuthProviderParams: Creat
                 phone: createUserAuthProviderParams.phone ?? null,
                 passwordHash: createUserAuthProviderParams.passwordHash,
                 provider: createUserAuthProviderParams.provider,
-                roleId: createUserAuthProviderParams.roleId,
+                role: createUserAuthProviderParams.roleId
+                    ? { connect: { id: createUserAuthProviderParams.roleId } }
+                    : { connect: { name: UserRole.USER } },
             },
         });
 
