@@ -185,6 +185,28 @@ export async function isRefreshTokenValid(token: string) {
     return result[0] ?? null;
 }
 
+export async function savePasswordResetToken(savePasswordResetTokenParams: {
+    userId: string;
+    token: string;
+    expiresAt: Date;
+}) {
+    const tokenHash = crypto.createHash('sha256').update(savePasswordResetTokenParams.token).digest('hex');
+
+    return prisma.passwordResetToken.upsert({
+        where: { userId: savePasswordResetTokenParams.userId },
+        update: {
+            tokenHash,
+            expiresAt: savePasswordResetTokenParams.expiresAt,
+            usedAt: null,
+        },
+        create: {
+            userId: savePasswordResetTokenParams.userId,
+            tokenHash,
+            expiresAt: savePasswordResetTokenParams.expiresAt,
+        },
+    });
+}
+
 export async function getPasswordResetToken(token: string) {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 

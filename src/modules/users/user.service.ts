@@ -3,9 +3,10 @@ import jwt from 'jsonwebtoken';
 
 import type { Prisma } from '../../../prisma/generated/client';
 import { prisma } from '../../plugins/prisma';
-import { sendVerificationEmail } from '../../utils/email';
+import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
 import { generateEmailVerificationToken } from '../../utils/email-verification';
 import { generateAccessToken, generateRefreshToken } from '../../utils/jwt';
+import { generatePasswordResetToken } from '../../utils/password-reset';
 import { getSignedFileUrl, uploadFile } from '../../utils/s3';
 import {
     EmailAlreadyInUseError,
@@ -21,6 +22,7 @@ import {
 import {
     createUserAuthProvider,
     createUserRepository,
+    deleteExpiredPasswordResetTokens as deleteExpiredPasswordResetTokensRepository,
     deleteUser,
     getPasswordResetToken,
     getUserByEmailRepository,
@@ -29,6 +31,7 @@ import {
     markUserAsVerified,
     revokeAllUserTokens,
     revokeRefreshToken,
+    savePasswordResetToken,
     saveRefreshToken,
     updateUser,
     updateUserPassword,
@@ -226,15 +229,17 @@ export async function forgotPassword(email: string) {
     const user = await getUserByEmailRepository(email);
     if (!user) throw new UserNotFoundError(email);
 
-    const passwordResetToken = generateEmailVerificationToken(user.id);
-    await saveRefreshToken({
+    const passwordResetToken = generatePasswordResetToken();
+    const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
+
+    await savePasswordResetToken({
         userId: user.id,
         token: passwordResetToken,
-        expiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+        expiresAt,
     });
 
     try {
-        await sendVerificationEmail(user.email, passwordResetToken);
+        await sendPasswordResetEmail(user.email, passwordResetToken);
     } catch (error) {
         console.error(error);
     }
@@ -268,7 +273,7 @@ export async function changePassword(userId: string, currentPassword: string, ne
 }
 
 export async function deleteExpiredPasswordResetTokens() {
-    await deleteExpiredPasswordResetTokens();
+    await deleteExpiredPasswordResetTokensRepository();
 
     return { success: true };
 }
