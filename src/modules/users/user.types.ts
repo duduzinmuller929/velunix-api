@@ -13,6 +13,9 @@ export interface CreateUserData {
     roleId?: string | undefined;
 }
 
+export type OAuthProvider = 'google' | 'github' | 'discord';
+export type OAuthCallbackQuery = { code?: string; error?: string };
+
 export interface RefreshTokenType {
     userId: string;
     token: string;
@@ -26,7 +29,7 @@ export type UpdateUserData = {
     username?: string | undefined;
     email?: string | undefined;
     password?: string | undefined;
-    avatarUrl?: string | null;
+    avatar?: string | null | undefined;
     verified?: boolean;
     cpfCnpj?: string | undefined;
     createdAt?: Date;

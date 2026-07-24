@@ -61,3 +61,10 @@ export class FreePlanAssignmentError extends Error {
         this.name = 'FreePlanAssignmentError';
     }
 }
+
+export class TokenInvalidorExpiredError extends Error {
+    constructor() {
+        super('Token inválido ou expirado');
+        this.name = 'TokenInvalidorExpiredError';
+    }
+}
