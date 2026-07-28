@@ -316,9 +316,17 @@ export async function deleteUser(userId: string) {
 }
 
 export async function hardDeleteUser(userId: string) {
-    return prisma.user.delete({
-        where: {
-            id: userId,
-        },
-    });
+    try {
+        return await prisma.user.delete({
+            where: {
+                id: userId,
+            },
+        });
+    } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+            throw new UserNotFoundError(userId);
+        }
+
+        throw error;
+    }
 }
