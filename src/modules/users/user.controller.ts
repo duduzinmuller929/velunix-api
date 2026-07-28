@@ -33,6 +33,7 @@ import {
     deleteUserService,
     forgotPassword,
     getUserProfile,
+    hardDeleteUserService,
     loginUser,
     logoutUser,
     refreshAccessToken,
@@ -395,13 +396,12 @@ export async function getUserProfileController(req: FastifyRequest, reply: Fasti
         if (!userId) return unauthorized(reply, { message: 'ID do usuário não encontrado' });
 
         const user = await getUserProfile(userId);
-        if (!user) return notFound(reply, { message: 'Usuário não encontrado.' });
 
-        return { user };
+        return ok(reply, user);
     } catch (error) {
         console.error(error);
         if (error instanceof UserNotFoundError) {
-            return badRequest(reply, error.message);
+            return notFound(reply, error.message);
         }
         return internalServerError(reply);
     }
@@ -453,7 +453,7 @@ export async function loginUserController(req: FastifyRequest, reply: FastifyRep
             return badRequest(reply, error.message);
         }
         if (error instanceof UserNotFoundLogin) {
-            return badRequest(reply, error.message);
+            return notFound(reply, error.message);
         }
         return internalServerError(reply);
     }
@@ -500,6 +500,9 @@ export async function updateUserController(req: FastifyRequest, reply: FastifyRe
         return ok(reply, { message: 'Usuário atualizado com sucesso', user });
     } catch (error) {
         console.error(error);
+        if (error instanceof UserNotFoundError) {
+            return notFound(reply, error.message);
+        }
         return internalServerError(reply);
     }
 }
@@ -515,6 +518,27 @@ export async function deleteUserController(req: FastifyRequest, reply: FastifyRe
         return ok(reply, { message: 'Usuário deletado com sucesso' });
     } catch (error) {
         console.error(error);
+        if (error instanceof UserNotFoundError) {
+            return notFound(reply, error.message);
+        }
+        return internalServerError(reply);
+    }
+}
+
+export async function hardDeleteUserController(req: FastifyRequest, reply: FastifyReply) {
+    try {
+        const { refresh_token: refreshToken } = req.cookies || {};
+        const { id } = userIdSchema.parse(req.user);
+        if (!id) return unauthorized(reply, { message: 'ID do usuário não encontrado' });
+
+        await hardDeleteUserService(id, refreshToken);
+
+        return ok(reply, { message: 'Usuário deletado com sucesso' });
+    } catch (error) {
+        console.error(error);
+        if (error instanceof UserNotFoundError) {
+            return notFound(reply, error.message);
+        }
         return internalServerError(reply);
     }
 }
@@ -592,7 +616,7 @@ export async function resetPasswordController(req: FastifyRequest, reply: Fastif
     } catch (error) {
         console.error(error);
         if (error instanceof UserNotFoundError) {
-            return ok(reply, { message: 'Se o email existir, você receberá instruções para redefinir sua senha' });
+            return notFound(reply, error.message);
         }
         return internalServerError(reply);
     }
@@ -651,7 +675,7 @@ export async function changePasswordController(req: FastifyRequest, reply: Fasti
             return badRequest(reply, error.issues[0]?.message);
         }
         if (error instanceof UserNotFoundError) {
-            return badRequest(reply, error.message);
+            return notFound(reply, error.message);
         }
         if (error instanceof InvalidCredentialsError) {
             return badRequest(reply, error.message);
