@@ -27,6 +27,7 @@ import {
     getPasswordResetToken,
     getUserByEmailRepository,
     getUserByIdRepository,
+    hardDeleteUser,
     isRefreshTokenValid,
     markUserAsVerified,
     revokeAllUserTokens,
@@ -176,6 +177,19 @@ export async function updateUserService(data: UpdateUserData) {
     if (!updatedUser) throw new UserNotUpdatedError(user.id);
 
     return updatedUser;
+}
+
+export async function hardDeleteUserService(userId: string, refreshToken?: string) {
+    const targetUser = await getUserByIdRepository(userId);
+    if (!targetUser) throw new UserNotFoundError(userId);
+
+    await revokeAllUserTokens(userId);
+
+    await hardDeleteUser(userId);
+
+    if (refreshToken) {
+        await revokeRefreshToken(refreshToken);
+    }
 }
 
 export async function deleteUserService(targetUserId: string, refreshToken?: string) {
