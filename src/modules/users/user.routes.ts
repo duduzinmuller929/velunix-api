@@ -35,7 +35,7 @@ import type { OAuthCallbackQuery } from './user.types';
 
 export async function userRoutes(app: FastifyInstance) {
     app.post(
-        'users/register',
+        '/users/register',
         {
             schema: {
                 summary: 'Criar um novo Usuário',

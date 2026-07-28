@@ -1,40 +1,51 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
-export const registerSchema = z.object({
-    name: z
-        .string()
-        .trim()
-        .min(3, 'O nome deve possuir pelo menos 3 caracteres.')
-        .max(100, 'O nome deve possuir no máximo 100 caracteres.'),
+export const registerSchema = z.object(
+    {
+        name: z
+            .string()
+            .trim()
+            .min(3, { message: 'O nome deve possuir pelo menos 3 caracteres.' })
+            .max(100, { message: 'O nome deve possuir no máximo 100 caracteres.' }),
 
-    username: z
-        .string()
-        .trim()
-        .toLowerCase()
-        .min(3, 'O usuário deve possuir pelo menos 3 caracteres.')
-        .max(30, 'O usuário deve possuir no máximo 30 caracteres.')
-        .regex(/^[a-z0-9._]+$/, 'O usuário pode conter apenas letras minúsculas, números, ponto e underline.'),
+        username: z
+            .string()
+            .trim()
+            .toLowerCase()
+            .min(3, { message: 'O usuário deve possuir pelo menos 3 caracteres.' })
+            .max(30, { message: 'O usuário deve possuir no máximo 30 caracteres.' })
+            .regex(/^[a-z0-9._]+$/, {
+                message: 'O usuário pode conter apenas letras minúsculas, números, ponto e underline.',
+            }),
 
-    email: z.string().trim().email('E-mail inválido.').max(255),
+        email: z.string().trim().email({ message: 'E-mail inválido.' }).max(255),
 
-    passwordHash: z
-        .string()
-        .min(8, 'A senha deve possuir no mínimo 8 caracteres.')
-        .max(100)
-        .regex(/[A-Z]/, 'A senha deve conter uma letra maiúscula.')
-        .regex(/[a-z]/, 'A senha deve conter uma letra minúscula.')
-        .regex(/[0-9]/, 'A senha deve conter um número.')
-        .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, 'A senha deve conter um caractere especial.'),
+        passwordHash: z
+            .string()
+            .min(8, { message: 'A senha deve possuir no mínimo 8 caracteres.' })
+            .max(100)
+            .regex(/[A-Z]/, { message: 'A senha deve conter uma letra maiúscula.' })
+            .regex(/[a-z]/, { message: 'A senha deve conter uma letra minúscula.' })
+            .regex(/[0-9]/, { message: 'A senha deve conter um número.' })
+            .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, { message: 'A senha deve conter um caractere especial.' }),
 
-    phone: z.string().trim().optional(),
+        phone: z.string().trim().optional(),
 
-    avatar: z.string().url().optional(),
-});
+        avatar: z.string().url().optional(),
+    },
+    {
+        error: (issue) => {
+            if (issue.code === 'invalid_type' && issue.input === null) {
+                return 'O corpo da requisição é obrigatório.';
+            }
+        },
+    },
+);
 
 export const loginSchema = z.object({
-    email: z.string().trim().email('E-mail inválido.'),
+    email: z.string().trim().email({ message: 'E-mail inválido.' }),
 
-    password: z.string().min(8, 'Senha inválida.'),
+    password: z.string().min(8, { message: 'Senha inválida.' }),
 });
 
 export const updateUserSchema = registerSchema.partial();

@@ -358,7 +358,8 @@ export async function createUserController(req: FastifyRequest, reply: FastifyRe
     } catch (error) {
         console.error(error);
         if (error instanceof ZodError) {
-            return badRequest(reply, error.issues[0]?.message);
+            const message = error.issues[0]?.message ?? 'Dados inválidos fornecidos';
+            return badRequest(reply, { message });
         }
         if (error instanceof EmailAlreadyInUseError) {
             return badRequest(reply, error.message);
@@ -447,7 +448,8 @@ export async function loginUserController(req: FastifyRequest, reply: FastifyRep
     } catch (error) {
         console.error(error);
         if (error instanceof ZodError) {
-            return badRequest(reply, error.issues[0]?.message);
+            const message = error.issues[0]?.message ?? 'Dados inválidos fornecidos';
+            return badRequest(reply, { message });
         }
         if (error instanceof InvalidCredentialsError) {
             return badRequest(reply, error.message);
@@ -632,7 +634,8 @@ export async function forgotPasswordController(req: FastifyRequest, reply: Fasti
     } catch (error) {
         console.error(error);
         if (error instanceof ZodError) {
-            return badRequest(reply, error.issues[0]?.message);
+            const message = error.issues?.[0]?.message || 'Dados inválidos fornecidos';
+            return badRequest(reply, { message });
         }
         return internalServerError(reply);
     }
@@ -649,7 +652,8 @@ export async function resetPasswordWithTokenController(req: FastifyRequest, repl
     } catch (error) {
         console.error(error);
         if (error instanceof ZodError) {
-            return badRequest(reply, error.issues[0]?.message);
+            const message = error.issues?.[0]?.message || 'Dados inválidos fornecidos';
+            return badRequest(reply, { message });
         }
         if (error instanceof InvalidRefreshTokenError) {
             return badRequest(reply, { message: 'Token inválido ou expirado' });
@@ -672,7 +676,8 @@ export async function changePasswordController(req: FastifyRequest, reply: Fasti
     } catch (error) {
         console.error(error);
         if (error instanceof ZodError) {
-            return badRequest(reply, error.issues[0]?.message);
+            const message = error.issues?.[0]?.message || 'Dados inválidos fornecidos';
+            return badRequest(reply, { message });
         }
         if (error instanceof UserNotFoundError) {
             return notFound(reply, error.message);
