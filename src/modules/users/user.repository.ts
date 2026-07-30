@@ -78,6 +78,7 @@ export async function createUserAuthProvider(createUserAuthProviderParams: Creat
                 phone: createUserAuthProviderParams.phone ?? null,
                 passwordHash: createUserAuthProviderParams.passwordHash,
                 provider: createUserAuthProviderParams.provider,
+                emailVerified: true,
                 role: createUserAuthProviderParams.roleId
                     ? { connect: { id: createUserAuthProviderParams.roleId } }
                     : { connect: { name: UserRole.USER } },
