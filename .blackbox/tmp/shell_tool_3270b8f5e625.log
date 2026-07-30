@@ -1,0 +1,41 @@
+Loaded Prisma config from prisma.config.ts.
+
+
+! unknown or unexpected option: --timeout
+
+Browse your data with Prisma Studio
+
+Usage
+
+  $ prisma studio [options]
+
+Options
+
+  -h, --help        Display this help message
+  -p, --port        Port to start Studio on
+  -b, --browser     Browser to open Studio in
+  --config          Custom path to your Prisma config file
+  --url             Database connection string (overrides the one in your Prisma config)
+
+Examples
+
+  Start Studio on the default port
+    $ prisma studio
+
+  Start Studio on a custom port
+    $ prisma studio --port 5555
+
+  Start Studio in a specific browser
+    $ prisma studio --port 5555 --browser firefox
+    $ BROWSER=firefox prisma studio --port 5555
+
+  Start Studio without opening in a browser
+    $ prisma studio --port 5555 --browser none
+    $ BROWSER=none prisma studio --port 5555
+
+  Specify a custom prisma config file
+    $ prisma studio --config=./prisma.config.ts
+
+  Specify a direct database connection string
+    $ prisma studio --url="postgresql://user:password@localhost:5432/dbname"
+
