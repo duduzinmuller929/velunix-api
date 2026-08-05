@@ -13,6 +13,12 @@ export async function createCoupon(createCouponParams: CreateCouponParams) {
             expiresAt: createCouponParams.expiresAt,
             isActive: createCouponParams.isActive,
             planId: createCouponParams.planId,
+            minimumAmount: createCouponParams.minimumAmount ?? null,
+            maximumDiscount: createCouponParams.maximumDiscount ?? null,
+            firstPurchaseOnly: createCouponParams.firstPurchaseOnly ?? false,
+            perUserLimit: createCouponParams.perUserLimit ?? null,
+            description: createCouponParams.description ?? null,
+            startsAt: createCouponParams.startsAt ?? null,
         },
     });
 

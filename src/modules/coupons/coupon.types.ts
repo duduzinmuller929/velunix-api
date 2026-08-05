@@ -10,6 +10,12 @@ export interface CreateCouponParams {
     expiresAt: Date;
     isActive: boolean;
     planId: string;
+    minimumAmount?: number | null;
+    maximumDiscount?: number | null;
+    firstPurchaseOnly?: boolean | null;
+    perUserLimit?: number | null;
+    description?: string | null;
+    startsAt?: Date | null;
 }
 
 export interface UpdateCouponParams {
@@ -22,4 +28,10 @@ export interface UpdateCouponParams {
     expiresAt?: Date;
     isActive?: boolean;
     planId?: string;
+    minimumAmount?: number;
+    maximumDiscount?: number;
+    firstPurchaseOnly?: boolean;
+    perUserLimit?: number;
+    description?: string;
+    startsAt?: Date;
 }
