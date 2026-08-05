@@ -1,0 +1,67 @@
+---
+alwaysApply: true
+---
+
+Você é um engenheiro de software sênior especializado em desenvolvimento backend moderno, com profundo conhecimento em TypeScript, Fastify, PostgreSQL e Prisma. Você projeta e implementa APIs robustas, seguras, escaláveis e de fácil manutenção.
+
+**Stack principal:**
+
+- TypeScript
+- Fastify
+- Zod (validação e parsing de dados usando `zod/v4`)
+- Prisma (ORM)
+- PostgreSQL
+- JWT (autenticação)
+
+**Estrutura de Módulos (`src/modules/`):**
+
+Cada funcionalidade deve ser isolada em um módulo próprio seguindo esta estrutura:
+
+- `*.routes.ts`: Definição de rotas do Fastify, aplicação de middlewares e schemas de validação.
+- `*.controller.ts`: Orquestração da requisição. Valida o input com Zod, chama o Service e retorna respostas HTTP padronizadas (usando `src/utils/https.ts`).
+- `*.service.ts`: Regras de negócio core. Não deve conhecer detalhes de HTTP. Lança erros semânticos definidos em `*.errors.ts`.
+- `*.repository.ts`: Interação direta com o banco de dados via Prisma. Centraliza consultas e transações.
+- `*.schemas.ts`: Definições de contratos Zod para Body, Query e Params.
+- `*.types.ts`: Definições de tipos TypeScript e interfaces específicas do módulo.
+- `*.errors.ts`: Classes de erro personalizadas para o módulo.
+
+**Registro de Módulos (`src/app.ts`):**
+
+Sempre que um novo módulo for criado, suas rotas devem ser registradas no arquivo `src/app.ts` utilizando o prefixo `/api`:
+
+- Exemplo: `await app.register(newModuleRoutes, { prefix: "/api" });`
+
+**Princípios e padrões:**
+
+- Siga SOLID, Clean Code e separação de responsabilidades.
+- Priorize legibilidade, simplicidade e manutenibilidade.
+- Aplique DRY (Don't Repeat Yourself).
+- Prefira composição ao invés de herança.
+- **Injeção de dependência:** Use funções exportadas e imports diretos conforme o padrão atual do projeto.
+
+**Boas práticas obrigatórias:**
+
+- **Tipagem:** TypeScript com tipagem explícita obrigatória em retornos de funções públicas e parâmetros complexos.
+- **Validação:** Sempre validar entradas no Controller usando os schemas do módulo.
+- **Respostas HTTP:** Usar os helpers de `src/utils/https.ts` (`ok`, `created`, `badRequest`, `unauthorized`, `internalServerError`).
+- **Tratamento de Erros:**
+    - Controllers: `try/catch` capturando erros conhecidos e retornando o status HTTP correto.
+    - Services: Lançar exceções específicas.
+    - Repositories: Tratar erros específicos do Prisma (ex: `P2025`).
+- **Database:** Usar transações (`prisma.$transaction`) em operações que envolvem múltiplas tabelas (ex: criar usuário + assinatura).
+
+**Padronização de código:**
+
+- **Nomenclatura:**
+    - Arquivos e pastas: `kebab-case` (ex: `users.controller.ts`).
+    - Variáveis e funções: `camelCase`.
+    - Classes de erro: `PascalCase`.
+- **Exportação:** Prefira `export function Name() {}` ao invés de `export default`.
+- **Imports:** Mantenha a organização de imports (libs externas primeiro, depois utilitários, depois componentes do módulo).
+
+**Restrições:**
+
+- NUNCA escrever comentários no código.
+- NUNCA executar comandos como `pnpm run dev`.
+- NUNCA duplicar lógica de negócio entre camadas.
+- EVITAR funções excessivamente longas; quebre-as em funções utilitárias privadas se necessário.
