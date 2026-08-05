@@ -12,7 +12,7 @@ export async function createCoupon(createCouponParams: CreateCouponParams) {
             status: createCouponParams.status,
             expiresAt: createCouponParams.expiresAt,
             isActive: createCouponParams.isActive,
-            planId: createCouponParams.planId,
+            planId: createCouponParams.planId ?? null,
             minimumAmount: createCouponParams.minimumAmount ?? null,
             maximumDiscount: createCouponParams.maximumDiscount ?? null,
             firstPurchaseOnly: createCouponParams.firstPurchaseOnly ?? false,

@@ -9,7 +9,7 @@ export interface CreateCouponParams {
     status: CouponStatus;
     expiresAt: Date;
     isActive: boolean;
-    planId: string;
+    planId?: string | undefined;
     minimumAmount?: number | null;
     maximumDiscount?: number | null;
     firstPurchaseOnly?: boolean | null;
