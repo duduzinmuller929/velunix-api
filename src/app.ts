@@ -12,6 +12,7 @@ import {
     type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 
+import { couponRoutes } from './modules/coupons/coupon.routes';
 import { userRoutes } from './modules/users/user.routes';
 import dbPlugin from './plugins/db';
 
@@ -85,6 +86,7 @@ export const buildApp = async () => {
     );
 
     await app.register(userRoutes, { prefix: '/api' });
+    await app.register(couponRoutes, { prefix: '/api' });
 
     return app;
 };
