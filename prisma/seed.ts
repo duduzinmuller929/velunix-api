@@ -1,5 +1,5 @@
-import { PlanName, UserRole } from './generated/enums';
 import { prisma } from '../src/plugins/prisma';
+import { PlanName, UserRole } from './generated/enums';
 
 const roles = [
     UserRole.CEO,

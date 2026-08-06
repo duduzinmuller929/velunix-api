@@ -226,7 +226,7 @@ model User {
   emailVerified    Boolean    @default(false) @map("email_verified")
   twoFactorEnabled Boolean    @default(false) @map("two_factor_enabled")
   status           UserStatus @default(PENDING)
-  deletedAt        DateTime?   @map("deleted_at")
+  deletedAt        DateTime?  @map("deleted_at")
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")
 
@@ -268,12 +268,12 @@ model User {
 }
 
 model PasswordResetToken {
-  id         String   @id @default(uuid())
-  userId     String   @unique @map("user_id")
-  tokenHash  String   @unique @map("token_hash")
-  expiresAt  DateTime @map("expires_at")
-  usedAt     DateTime? @map("used_at")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id        String    @id @default(uuid())
+  userId    String    @unique @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -422,27 +422,28 @@ model UserSettings {
 }
 
 model Plan {
-  id String @id @default(uuid())
-  name PlanName @default(FREE)
-  price Decimal @db.Decimal(10,2)
-  dailyRequests Int @map("daily_requests")
-  storageLimit Int @map("storage_limit")
-  maxConversations Int? @map("max_conversations")
-  maxAssistants Int? @map("max_assistants")
-  maxUploads Int? @map("max_uploads")
-  maxImages Int? @map("max_images")
-  maxAudioMinutes Int? @map("max_audio_minutes")
-  prioritySupport Boolean @default(false) @map("priority_support")
-  teamMembers Int? @map("team_members")
-  apiAccess Boolean @default(false) @map("api_access")
-  customBranding Boolean @default(false) @map("custom_branding")
-  voiceEnabled Boolean @default(false) @map("voice_enabled")
-  maxTokensPerDay Int? @map("max_tokens_per_day")
-  maxStoragePerFile Int @map("max_storage_per_file")
-  createdAt DateTime @default(now()) @map("created_at")
-  subscriptions Subscription[]
-  coupons Coupon[]
-  accessCodes AccessCode[]
+  id                String         @id @default(uuid())
+  name              PlanName       @default(FREE)
+  price             Decimal        @db.Decimal(10, 2)
+  dailyRequests     Int            @map("daily_requests")
+  storageLimit      Int            @map("storage_limit")
+  maxConversations  Int?           @map("max_conversations")
+  maxAssistants     Int?           @map("max_assistants")
+  maxUploads        Int?           @map("max_uploads")
+  maxImages         Int?           @map("max_images")
+  maxAudioMinutes   Int?           @map("max_audio_minutes")
+  prioritySupport   Boolean        @default(false) @map("priority_support")
+  teamMembers       Int?           @map("team_members")
+  apiAccess         Boolean        @default(false) @map("api_access")
+  customBranding    Boolean        @default(false) @map("custom_branding")
+  voiceEnabled      Boolean        @default(false) @map("voice_enabled")
+  maxTokensPerDay   Int?           @map("max_tokens_per_day")
+  maxStoragePerFile Int            @map("max_storage_per_file")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  subscriptions     Subscription[]
+  coupons           Coupon[]
+  accessCodes       AccessCode[]
+
   @@map("plans")
 }
 
@@ -496,17 +497,23 @@ model Invoice {
 }
 
 model Coupon {
-  id        String       @id @default(uuid())
-  code      String       @unique
-  type      CouponType   @default(PERCENTAGE)
-  value     Decimal      @db.Decimal(10, 2)
-  maxUses   Int          @map("max_uses")
-  usedCount Int          @default(0) @map("used_count")
-  status    CouponStatus @default(ACTIVE)
-  planId    String?      @map("plan_id")
-  expiresAt DateTime?    @map("expires_at")
-  isActive  Boolean      @default(true) @map("is_active")
-  createdAt DateTime     @default(now()) @map("created_at")
+  id                String       @id @default(uuid())
+  code              String       @unique
+  type              CouponType   @default(PERCENTAGE)
+  value             Decimal      @db.Decimal(10, 2)
+  maxUses           Int          @map("max_uses")
+  usedCount         Int          @default(0) @map("used_count")
+  status            CouponStatus @default(ACTIVE)
+  planId            String?      @map("plan_id")
+  expiresAt         DateTime?    @map("expires_at")
+  isActive          Boolean      @default(true) @map("is_active")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  minimumAmount     Decimal?
+  maximumDiscount   Decimal?
+  firstPurchaseOnly Boolean      @default(false)
+  perUserLimit      Int?
+  description       String?
+  startsAt          DateTime?
 
   plan        Plan?              @relation(fields: [planId], references: [id])
   redemptions CouponRedemption[]
