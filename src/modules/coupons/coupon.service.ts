@@ -1,8 +1,19 @@
-import { CouponNotCreatedError, CouponNotFoundError, CouponNotUpdatedError } from './coupon.errors';
+import {
+    CouponAlreadyInUseError,
+    CouponNotCreatedError,
+    CouponNotFoundError,
+    CouponNotUpdatedError,
+} from './coupon.errors';
 import { createCoupon, deleteCoupon, getCouponByCode, getCouponById, updateCoupon } from './coupon.repository';
 import type { CreateCouponParams, UpdateCouponParams } from './coupon.types';
 
 export async function createCouponService(createCouponParams: CreateCouponParams) {
+    const existingCoupon = await getCouponByCode(createCouponParams.code);
+
+    if (existingCoupon) {
+        throw new CouponAlreadyInUseError(createCouponParams.code);
+    }
+
     const coupon = await createCoupon(createCouponParams);
 
     if (!coupon) {

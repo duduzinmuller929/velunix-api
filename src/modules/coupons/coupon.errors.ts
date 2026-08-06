@@ -6,6 +6,13 @@ export class CouponNotFoundError extends Error {
     }
 }
 
+export class CouponAlreadyInUseError extends Error {
+    constructor(readonly code: string) {
+        super(`O cupom ${code} ja foi criado`);
+        this.name = 'CouponAlreadyInUseError ';
+    }
+}
+
 export class CouponNotCreatedError extends Error {
     readonly code = 'COUPON_NOT_CREATED' as const;
     constructor() {

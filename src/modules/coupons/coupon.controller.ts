@@ -3,7 +3,12 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
 
 import { badRequest, created, internalServerError, notFound, ok } from '../../utils/http';
-import { CouponNotCreatedError, CouponNotFoundError, CouponNotUpdatedError } from './coupon.errors';
+import {
+    CouponAlreadyInUseError,
+    CouponNotCreatedError,
+    CouponNotFoundError,
+    CouponNotUpdatedError,
+} from './coupon.errors';
 import { createCouponSchema, updateCouponSchema } from './coupon.schemas';
 import {
     createCouponService,
@@ -40,6 +45,9 @@ export async function createCouponController(req: FastifyRequest, reply: Fastify
             return badRequest(reply, { message });
         }
 
+        if (error instanceof CouponAlreadyInUseError) {
+            return badRequest(reply, error.message);
+        }
         if (error instanceof CouponNotCreatedError) {
             return badRequest(reply, error.message);
         }
